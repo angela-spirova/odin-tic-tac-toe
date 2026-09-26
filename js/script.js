@@ -44,12 +44,40 @@ function Player(symbol){
     }
 }
 
+function DisplayController(){
+    const updateDisplay = function(gameboard){
+        let str = new String;
+        for(let i=0; i<3; i++){
+            for(let j=0; j<3; j++){
+                str+=gameboard.cells[i*3+j].getSymbol();
+            }
+            str+="\n";
+        }
+
+        console.log(str);
+
+    }
+
+    const displayResults = function(winner){
+        if(winner==null){
+            console.log("it's a tie!");
+        }else{
+            console.log(`${winner.getName()} is the winner!`)
+        }
+    }
+    return {
+        updateDisplay,
+        displayResults
+    }
+}
+
 function GameController(){
     const players = new Array();
     players.push(new Player("X"));
     players.push(new Player("O"));
 
     const gameboard = new Gameboard();
+    const displayController = new DisplayController();
 
     let _currentPlayerIndex = 0;
     let _gameOver = false;
@@ -82,6 +110,7 @@ function GameController(){
             const index = prompt("where to place");
             console.log(index);
             gameboard.fillCell(index, symbol);
+            displayController.updateDisplay(gameboard);
             if(gameWon() || gameboard.fullBoard()){
                 endGame();
             }else{
@@ -89,6 +118,7 @@ function GameController(){
             }
         }
         setWinner(player);
+        displayController.displayResults(_winner);
     }
 
 
