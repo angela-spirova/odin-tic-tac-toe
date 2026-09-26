@@ -36,7 +36,7 @@ function Gameboard(){
 
 function Player(symbol){
     const _symbol = symbol;
-    const _name = _symbol // temp
+    let _name = _symbol // temp
     const getSymbol = () => _symbol;
     const getName = () => _name;
     return {
