@@ -1,7 +1,7 @@
 function Gameboard(){
     function Cell(){
-        let _symbol;
-        const isEmpty = () => _symbol !== undefined;
+        let _symbol = null;
+        const isEmpty = () => _symbol == null;
         const getSymbol = () => _symbol;
         const setSymbol = function(symbol){
             _symbol = symbol;
