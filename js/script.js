@@ -1,22 +1,30 @@
 function Gameboard(){
     function Cell(){
-        let _symbol = " ";
+        let _symbol;
+        const isEmpty = () => _symbol !== undefined;
         const getSymbol = () => _symbol;
         const setSymbol = function(symbol){
             _symbol = symbol;
         }
         return {
+            isEmpty,
             getSymbol,
             setSymbol
         }
     }
 
     const cells = new Array();
-    for(let i=0; i<6; i++){
+    for(let i=0; i<9; i++){
         cells.push(new Cell());
     }
-
+    
     const fillCell = function(index, symbol){
+        if(index<0 || index>8){
+            throw RangeError("Invalid array index");
+        }
+        if(cells[index].isEmpty()){
+            return ;
+        }
         cells[index].setSymbol(symbol);
     }
 
