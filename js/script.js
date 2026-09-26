@@ -1,9 +1,7 @@
 function Gameboard(){
     function Cell(){
         let _symbol = " ";
-        const getSymbol = function(){
-            return _symbol;
-        }
+        const getSymbol = () => _symbol;
         const setSymbol = function(symbol){
             _symbol = symbol;
         }
@@ -26,4 +24,15 @@ function Gameboard(){
         cells,
         fillCell
     };
+}
+
+function Player(symbol){
+    const _symbol = symbol;
+    const _name = _symbol // temp
+    const getSymbol = () => _symbol;
+    const getName = () => _name;
+    return {
+        getSymbol,
+        getName
+    }
 }
