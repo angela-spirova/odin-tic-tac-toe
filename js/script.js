@@ -23,7 +23,6 @@ function Gameboard(){
         if(cells[index].isEmpty()){
             cells[index].setSymbol(symbol);
             _freeCells--;
-            console.log(_freeCells);
             return true;
         }
         return false;
@@ -65,10 +64,10 @@ function DisplayController(){
         cell.innerText = symbol;
     }
 
-    const displayResults = function(winnerName){
+    const displayResults = function(isTie, winnerName){
         gameboardDisplay.classList.add("game-over");
         gameOverDisplay.style.visibility="visible";
-        if(winnerName==null){
+        if(isTie){
             results.innerText="It's a tie!";
             return ;
         }
@@ -78,7 +77,6 @@ function DisplayController(){
     const resetDisplay = function(){
         gameboardDisplay.classList.remove("game-over");
         gameOverDisplay.style.visibility="hidden";
-        console.log(gameboardDisplay.children);
         const cellDisplays = gameboardDisplay.children;
         [...cellDisplays].forEach(cell => {
             cell.innerText="";
@@ -95,10 +93,14 @@ function DisplayController(){
 function GameController(){
     function Player(symbol){
         const _symbol = symbol;
-        let _name; // temp
+        let _name;
         const getSymbol = () => _symbol;
         const getName = () => _name;
         const setName = function(name=_symbol){
+            if(name==""){
+                _name=_symbol;
+                return ;
+            }
             _name=name;
         }
         return {
@@ -127,10 +129,10 @@ function GameController(){
         _currentPlayerIndex = (_currentPlayerIndex+1)%2;
     }
 
-    const endGame = function(){
+    const endGame = function(isTie){
         _gameOver = true;
         const winnerName = (_winner == null) ? null : _winner.getName();
-        displayController.displayResults(winnerName);
+        displayController.displayResults(isTie, winnerName);
     }
 
     const setWinner = function(winner){
@@ -156,8 +158,7 @@ function GameController(){
             return true;
         }
 
-        if((column==2 && row==2) || (column!=2 || row!=2)){
-            
+        if((column==2 && row==2) || (column!=2 && row!=2)){
             if(row==column){
                 const majorDiagonalUpStep = column==1 ? 8 : -4;
                 const majorDiagonalDownStep = column==3 ? -8 : 4;
@@ -189,10 +190,10 @@ function GameController(){
 
         if(gameWon(index)){
             setWinner(player);
-            endGame();
+            endGame(false);
         } 
         else if(gameboard.isFullBoard()){
-            endGame();
+            endGame(true);
         }else{
             changePlayer();
         }
