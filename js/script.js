@@ -24,12 +24,24 @@ function Gameboard(){
             cells[index].setSymbol(symbol);
             _freeCells--;
             console.log(_freeCells);
+            return true;
         }
+        return false;
     }
+
+    const threeMatchingCells = function(index1, index2, index3){
+        if(cells[index1].getSymbol()==cells[index2].getSymbol()
+        && cells[index1].getSymbol()==cells[index3].getSymbol()){
+            return true;
+        }
+        return false;
+    }
+
     return {
         cells,
         fillCell,
-        fullBoard
+        fullBoard,
+        threeMatchingCells
     };
 }
 
@@ -97,8 +109,44 @@ function GameController(){
         _winner = winner;
     }
     
-    const gameWon = function(){
-        return false; // temp
+    
+    const gameWon = function(index){
+        index=+index;
+        const row = Math.floor(index/3)+1;
+        const column = (index%3)+1;
+
+        const leftStep = column==1 ? 2 : -1; // if it's on the first column it wraps around to the right of the board
+        const rightStep = column==3 ? -2 : 1; 
+        
+        if(gameboard.threeMatchingCells(index, index+leftStep, index+rightStep)){
+            return true;
+        }
+        
+        const upStep = row==1 ? 6 : -3;
+        const downStep = row==3 ? -6 : 3;
+
+        if(gameboard.threeMatchingCells(index, index+upStep, index+downStep)){
+            return true;
+        }
+
+        if((column==2 && row==2) || (column!=2 || row!=2)){
+            
+            if(row==column){
+                const majorDiagonalUpStep = column==1 ? 8 : -4;
+                const majorDiagonalDownStep = column==3 ? -8 : 4;
+                if(gameboard.threeMatchingCells(index, index+majorDiagonalUpStep, index+majorDiagonalDownStep)){
+                    return true;
+                }
+            }
+            else{
+                const minorDiagonalUpStep = row==1 ? 4 : -2;
+                const minorDiagonalDownStep = row==3 ? -4 : 2;
+                if(gameboard.threeMatchingCells(index, index+minorDiagonalUpStep, index+minorDiagonalDownStep)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     const playGame = function(){
@@ -107,11 +155,14 @@ function GameController(){
         while(!isGameOver()){
             player = players[_currentPlayerIndex];
             symbol = player.getSymbol();
-            const index = prompt("where to place");
+            let index = prompt("where to place");
             console.log(index);
-            gameboard.fillCell(index, symbol);
+            while(!gameboard.fillCell(index, symbol)){
+                index = prompt("where to place");
+                console.log(index);
+            }
             displayController.updateDisplay(gameboard);
-            if(gameWon() || gameboard.fullBoard()){
+            if(gameWon(index) || gameboard.fullBoard()){
                 endGame();
             }else{
                 changePlayer();
