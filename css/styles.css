@@ -4,6 +4,7 @@ body{
     flex-shrink: none;
     flex-direction: column;
     align-items:center;
+    justify-content: center;
 }
 
 button{
@@ -36,15 +37,34 @@ button.cell{
     align-items:center;
 }
 
-#reset-game{
+button#start-game, button#reset-game{
     font-size:1.5em;
     border:none;
-    background-color: lightslategray;
     color:white;
     padding: 0.5em 1em;
     border-radius:10px;
+    background-color: lightslategray;
 }
 
-#gameboard.game-over{
+#gameboard.game-not-started, #gameboard.game-over{
     pointer-events: none;
+}
+
+#gameboard.game-not-started, #gameboard.game-not-started>button{
+    border-color:rgb(162, 170, 179);
+}
+
+#before-game>form{
+    display:grid;
+    grid-template-rows: 1.5em 1.5em 3em;
+    grid-template-columns:100px 100px;
+    gap:0.5em;
+    align-items:center;
+}
+
+#before-game>h2{
+    text-align:center;
+}
+#start-game{
+    grid-area: 3 / span 2;
 }

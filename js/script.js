@@ -57,17 +57,6 @@ function Gameboard(){
     };
 }
 
-function Player(symbol){
-    const _symbol = symbol;
-    let _name = _symbol // temp
-    const getSymbol = () => _symbol;
-    const getName = () => _name;
-    return {
-        getSymbol,
-        getName
-    }
-}
-
 function DisplayController(){
     const gameboardDisplay = document.getElementById("gameboard");
     const results = document.getElementById("results");
@@ -104,6 +93,20 @@ function DisplayController(){
 }
 
 function GameController(){
+    function Player(symbol){
+        const _symbol = symbol;
+        let _name; // temp
+        const getSymbol = () => _symbol;
+        const getName = () => _name;
+        const setName = function(name=_symbol){
+            _name=name;
+        }
+        return {
+            getSymbol,
+            getName,
+            setName
+        }
+    }
     const players = new Array();
     players.push(new Player("X"));
     players.push(new Player("O"));
@@ -114,6 +117,11 @@ function GameController(){
     let _currentPlayerIndex = 0;
     let _gameOver = false;
     let _winner = null;
+
+    const setPlayerNames = function(player1Name, player2Name){
+        players[0].setName(player1Name);
+        players[1].setName(player2Name);
+    }
 
     const changePlayer = function(){
         _currentPlayerIndex = (_currentPlayerIndex+1)%2;
@@ -198,12 +206,11 @@ function GameController(){
         displayController.resetDisplay();
     }
     return {
+        setPlayerNames,
         playTurn,
         resetGame
     }
 }
-
-const game = new GameController();
 
 function ScreenController(){
     const game = new GameController();
@@ -216,6 +223,16 @@ function ScreenController(){
         game.playTurn(cell);
     });
 
+    const initialDialog = document.getElementById("before-game");
+    const playerNameForm = document.forms["player-names"];
+    playerNameForm.addEventListener('submit', (event)=>{
+        gameboardDisplay.classList.remove('game-not-started');
+        const player1Name = playerNameForm.p1name.value;
+        const player2Name = playerNameForm.p2name.value;
+        game.setPlayerNames(player1Name, player2Name);
+        initialDialog.close();
+        event.preventDefault();
+    });
     const resetButton = document.getElementById("reset-game");
     resetButton.addEventListener('click', () =>{
         game.resetGame();
