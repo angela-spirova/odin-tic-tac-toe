@@ -1,7 +1,7 @@
 function Gameboard(){
     function Cell(){
-        let _symbol="-";
-        const isEmpty = () => _symbol == "-";
+        let _symbol="";
+        const isEmpty = () => _symbol == "";
         const getSymbol = () => _symbol;
         const setSymbol = function(symbol){
             _symbol = symbol;
@@ -18,7 +18,7 @@ function Gameboard(){
         cells.push(new Cell());
     }
     let _freeCells = 9;
-    const fullBoard = () => _freeCells==0;
+    const isFullBoard = () => _freeCells==0;
     const fillCell = function(index, symbol){
         if(cells[index].isEmpty()){
             cells[index].setSymbol(symbol);
@@ -29,6 +29,10 @@ function Gameboard(){
         return false;
     }
 
+    const cellIsEmpty = function(index){
+        return cells[index].getSymbol() == "";
+    }
+
     const threeMatchingCells = function(index1, index2, index3){
         if(cells[index1].getSymbol()==cells[index2].getSymbol()
         && cells[index1].getSymbol()==cells[index3].getSymbol()){
@@ -37,11 +41,19 @@ function Gameboard(){
         return false;
     }
 
+    const emptyBoard = function(){
+        for(let i=0; i<9; i++){
+            cells[i].setSymbol("");
+        }
+        _freeCells=9;
+    }
+
     return {
-        cells,
         fillCell,
-        fullBoard,
-        threeMatchingCells
+        isFullBoard,
+        emptyBoard,
+        threeMatchingCells,
+        cellIsEmpty
     };
 }
 
@@ -57,29 +69,37 @@ function Player(symbol){
 }
 
 function DisplayController(){
-    const updateDisplay = function(gameboard){
-        let str = new String;
-        for(let i=0; i<3; i++){
-            for(let j=0; j<3; j++){
-                str+=gameboard.cells[i*3+j].getSymbol();
-            }
-            str+="\n";
-        }
-
-        console.log(str);
-
+    const gameboardDisplay = document.getElementById("gameboard");
+    const results = document.getElementById("results");
+    const gameOverDisplay = document.getElementById("game-over");
+    const placeMarker = function(cell, symbol){
+        cell.innerText = symbol;
     }
 
-    const displayResults = function(winner){
-        if(winner==null){
-            console.log("it's a tie!");
-        }else{
-            console.log(`${winner.getName()} is the winner!`)
+    const displayResults = function(winnerName){
+        gameboardDisplay.classList.add("game-over");
+        gameOverDisplay.style.visibility="visible";
+        if(winnerName==null){
+            results.innerText="It's a tie!";
+            return ;
         }
+        results.innerText = `${winnerName} wins!`;
     }
+
+    const resetDisplay = function(){
+        gameboardDisplay.classList.remove("game-over");
+        gameOverDisplay.style.visibility="hidden";
+        console.log(gameboardDisplay.children);
+        const cellDisplays = gameboardDisplay.children;
+        [...cellDisplays].forEach(cell => {
+            cell.innerText="";
+        });
+    }
+
     return {
-        updateDisplay,
-        displayResults
+        displayResults,
+        placeMarker,
+        resetDisplay
     }
 }
 
@@ -101,14 +121,13 @@ function GameController(){
 
     const endGame = function(){
         _gameOver = true;
+        const winnerName = (_winner == null) ? null : _winner.getName();
+        displayController.displayResults(winnerName);
     }
-
-    const isGameOver = () => _gameOver;
 
     const setWinner = function(winner){
         _winner = winner;
     }
-    
     
     const gameWon = function(index){
         index=+index;
@@ -149,34 +168,58 @@ function GameController(){
         return false;
     }
 
-    const playGame = function(){
-        let player;
-        let symbol;
-        while(!isGameOver()){
-            player = players[_currentPlayerIndex];
-            symbol = player.getSymbol();
-            let index = prompt("where to place");
-            console.log(index);
-            while(!gameboard.fillCell(index, symbol)){
-                index = prompt("where to place");
-                console.log(index);
-            }
-            displayController.updateDisplay(gameboard);
-            if(gameWon(index) || gameboard.fullBoard()){
-                endGame();
-            }else{
-                changePlayer();
-            }
+    const playTurn = function(cell){
+        const index = Number(cell.getAttribute('data-index'));
+        if(!gameboard.cellIsEmpty(index)){
+            return ;
         }
-        setWinner(player);
-        displayController.displayResults(_winner);
+        const player = players[_currentPlayerIndex];
+        const symbol = player.getSymbol();
+        gameboard.fillCell(index,symbol);
+
+        displayController.placeMarker(cell, symbol);
+
+        if(gameWon(index)){
+            setWinner(player);
+            endGame();
+        } 
+        else if(gameboard.isFullBoard()){
+            endGame();
+        }else{
+            changePlayer();
+        }
     }
 
-
+    const resetGame = function(){
+        _currentPlayerIndex = 0;
+        _gameOver = false;
+        _winner = null;
+        gameboard.emptyBoard();
+        displayController.resetDisplay();
+    }
     return {
-        playGame,
-        gameboard
+        playTurn,
+        resetGame
     }
 }
 
 const game = new GameController();
+
+function ScreenController(){
+    const game = new GameController();
+    const gameboardDisplay = document.getElementById("gameboard");
+    gameboardDisplay.addEventListener('click', (event) => {
+        if(!event.target.classList.contains('cell')){
+            return;
+        }
+        const cell = event.target;
+        game.playTurn(cell);
+    });
+
+    const resetButton = document.getElementById("reset-game");
+    resetButton.addEventListener('click', () =>{
+        game.resetGame();
+    });
+}
+
+ScreenController();

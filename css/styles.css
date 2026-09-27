@@ -6,6 +6,11 @@ body{
     align-items:center;
 }
 
+button{
+    cursor:pointer;
+    user-select: none;
+}
+
 #gameboard{
     border:1px solid black;
     width:fit-content;
@@ -19,17 +24,27 @@ button.cell{
     border-radius:0;
     border: 1px solid black;
     background-color: white;
-    cursor:pointer;
+    font-size:50px;
+    font-weight: bolder;
 }
 
-button.cell.occupied{
-    cursor:not-allowed;
+#game-over{
+    visibility: hidden;
+    display:flex;
+    flex-shrink: none;
+    flex-direction: column;
+    align-items:center;
 }
 
-/* button.cell:hover, button.cell:focus{
-    background-color: lightgray;
+#reset-game{
+    font-size:1.5em;
+    border:none;
+    background-color: lightslategray;
+    color:white;
+    padding: 0.5em 1em;
+    border-radius:10px;
 }
-button.cell:active{
-    background-color: gray;
-} */
 
+#gameboard.game-over{
+    pointer-events: none;
+}
